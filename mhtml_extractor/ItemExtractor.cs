@@ -89,10 +89,8 @@ namespace mhtml_extractor
                     do
                     {
                         string strx = sr.ReadLine();
-                        Console.WriteLine(strx);
                         if (strx == "\r\n")
                         {
-                            Console.WriteLine("B_{0}:{1}", strx, sr.BaseStream.Position);
                             break;
                         }
                         Match mc = Regex.Match(strx, @"^Content-Type:\s([\w]*)/([\w]*)");
