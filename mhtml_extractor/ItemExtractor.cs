@@ -9,13 +9,28 @@ namespace mhtml_extractor
 {
     public class ItemExtractor
     {
-        private FileStream StreamFile;
+        public delegate void OutputCallback(String FileName, long filesize, string filetype);
+        public delegate void HeaderMessage(String boundery);
+        public OutputCallback _OutputCallback { get; set; }
+        public HeaderMessage _HeaderMsg { get; set; }
         private FileInfo IFile;
         public ItemExtractor(string FileName)
         {
             IFile = new FileInfo(FileName);
-            StreamFile = new FileStream(IFile.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
+            _OutputCallback = Output;
+            _HeaderMsg = hMsg;
         }
+
+        private void hMsg(string boundery)
+        {
+            Console.WriteLine("");
+        }
+
+        private void Output(string FileName, long filesize, string filetype)
+        {
+            Console.WriteLine(FileName + "; " + filesize + "; " + filetype);
+        }
+
         private long GetEndContent(StreamReaderEx sr, string Boundery)
         {            
             string str0;
@@ -47,7 +62,7 @@ namespace mhtml_extractor
             string str0;
             string boundery = "";
             bool hasBoundery = false;
-            int files = 0;
+            string FileName;            
             while (!sr.EndOfStream)
             {
                 str0 = sr.ReadLine();
@@ -60,6 +75,7 @@ namespace mhtml_extractor
                 }
             }
             if (!hasBoundery) return;
+            _HeaderMsg.Invoke(boundery);
             while (!sr.EndOfStream)
             {
                 str0 = sr.ReadLine();
@@ -83,9 +99,10 @@ namespace mhtml_extractor
                     }
 
                     long fsize = end_content - sr.BaseStream.Position;
-                    using (FileStream fs = new FileStream(GetRandomFileName(filetype), FileMode.CreateNew))
+                    FileName = GetRandomFileName(filetype);
+                    using (FileStream fs = new FileStream(FileName, FileMode.CreateNew))
                     {
-                        Console.WriteLine("DAD {0}", ++files);
+                        _OutputCallback.Invoke(FileName, fsize, filetype);
                         while (sr.BaseStream.Position < end_content)
                         {
                             int wz = (int)(end_content - sr.BaseStream.Position);
