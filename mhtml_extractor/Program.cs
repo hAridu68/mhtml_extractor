@@ -12,8 +12,7 @@ namespace mhtml_extractor
         {
             ItemExtractor ti = new ItemExtractor(@"D:\Shared\n\COBA.mhtml");
             ti.Extruct();
-            
-
+            Console.ReadLine();
         }
     }
 }
