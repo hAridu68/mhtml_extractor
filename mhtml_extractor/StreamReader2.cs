@@ -28,7 +28,7 @@ namespace mhtml_extractor
         { 
             get
             {
-                return base.Position == base.Length;
+                return Position == Length;
             }
         }
         public Stream BaseStream { get { return this; } }
@@ -48,7 +48,8 @@ namespace mhtml_extractor
             {
                 redn = Read(buff, 0, buff.Length);
                 int nlen = redn;
-                if (EndOfStream) break;
+                if (EndOfStream && (redn == 0)) 
+                    break;
                 for (int i = 0; i < (redn - 1); i++)
                 {
                     if (buff[i] == 0xD || buff[i+1] == 0xA) {

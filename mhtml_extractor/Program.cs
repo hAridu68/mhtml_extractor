@@ -19,7 +19,6 @@ namespace mhtml_extractor
             }
             ItemExtractor ti = new ItemExtractor(args[0]);
             ti.Extruct();
-            Console.ReadLine();
         }
     }
 }

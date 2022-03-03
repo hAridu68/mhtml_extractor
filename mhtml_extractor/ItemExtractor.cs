@@ -34,16 +34,18 @@ namespace mhtml_extractor
         private long GetEndContent(StreamReaderEx sr, string Boundery)
         {            
             string str0;
-            long end_content = sr.BaseStream.Position;
+            long current_pos = sr.BaseStream.Position;
+            long end_content = current_pos;
             while (!sr.EndOfStream)
             {
                 str0 = sr.ReadLine();
                 if (Regex.IsMatch(str0, Boundery))
                 {
-                    end_content = sr.BaseStream.Position - (str0.Length - 1) -1;
+                    end_content = sr.BaseStream.Position - (str0.Length - 2);
                     break;
                 }
-            }            
+            }
+            sr.BaseStream.Position = current_pos;
             return end_content;
         }
         private string GetRandomFileName(string perfix)
@@ -80,23 +82,25 @@ namespace mhtml_extractor
             {
                 str0 = sr.ReadLine();
                 if (Regex.IsMatch(str0, boundery))
-                {                    
-                    long current_pos = sr.current_pos;
+                {                  
                     long end_content = GetEndContent(sr, boundery);
-                    sr.BaseStream.Position = current_pos;
                     byte[] buff = new byte[512];
                     string filetype = "";
-                    while (!sr.EndOfStream)
+                    do
                     {
                         string strx = sr.ReadLine();
+                        Console.WriteLine(strx);
                         if (strx == "\r\n")
+                        {
+                            Console.WriteLine("B_{0}:{1}", strx, sr.BaseStream.Position);
                             break;
+                        }
                         Match mc = Regex.Match(strx, @"^Content-Type:\s([\w]*)/([\w]*)");
                         if (mc.Success)
                         {
                             filetype = "." + mc.Groups[2];
                         }
-                    }
+                    } while (!sr.EndOfStream);
 
                     long fsize = end_content - sr.BaseStream.Position;
                     FileName = GetRandomFileName(filetype);
