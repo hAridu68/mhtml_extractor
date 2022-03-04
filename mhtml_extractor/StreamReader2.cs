@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 using System.IO;
 namespace mhtml_extractor
 {
-    public static class ExReader {
+    public static class ExReader
+    {
         public static StreamReaderEx CreateStreamReaderEx(this FileInfo finfo, FileMode fmode, FileAccess facc, FileShare fshr)
         {
             if (finfo.Exists)
@@ -15,9 +16,13 @@ namespace mhtml_extractor
             }
             return null;
         }
-        public static void AppendBytes(this StringBuilder sb,byte[] bytes, int offset, int count)
-        {            
+        public static void AppendBytes(this StringBuilder sb, byte[] bytes, int offset, int count)
+        {
             sb.Append(Encoding.ASCII.GetString(bytes, offset, count));
+        }
+        public static int ToBytes(this string str, byte[] buff, int offset)
+        {
+            return ASCIIEncoding.ASCII.GetBytes(str, 0, str.Length, buff, offset);
         }
     }
     public class StreamReaderEx : FileStream
@@ -25,7 +30,7 @@ namespace mhtml_extractor
         public long current_pos { get; private set; }
         public long pervious_pos { get; private set; }
         public bool EndOfStream
-        { 
+        {
             get
             {
                 return Position == Length;
@@ -42,31 +47,32 @@ namespace mhtml_extractor
             StringBuilder sb = new StringBuilder();
             byte[] buff = new byte[512];
             int redn;
-            bool newline =false;
+            bool newline = false;
             pervious_pos = current_pos;
             do
             {
                 redn = Read(buff, 0, buff.Length);
                 int nlen = redn;
-                if (EndOfStream && (redn == 0)) 
+                if (EndOfStream && (redn == 0))
                     break;
                 for (int i = 0; i < (redn - 1); i++)
                 {
-                    if (buff[i] == 0xD || buff[i+1] == 0xA) {
+                    if (buff[i] == 0xD || buff[i + 1] == 0xA)
+                    {
                         int CRLF = (buff[i] ^ 0xD) + ((buff[i + 1] ^ 0xA) >> 8);
 
                         switch (CRLF)
                         {
                             case 0:
                                 newline = true;
-                                i+=2;
+                                i += 2;
                                 break;
                             default:
 
                                 if ((CRLF << 8) == 0)
                                 {
                                     newline = true;
-                                    i+=2;
+                                    i += 2;
                                     break;
                                 }
                                 newline = ((byte)(CRLF >> 8) == 0);
