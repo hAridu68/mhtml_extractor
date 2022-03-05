@@ -185,15 +185,26 @@ namespace mhtml_extractor
                             }
                             base64.Clear();
                             break;
-                        default:
+                        case "7bit":                       
+                        case "8bit":
+                        case "Binary":                        
                             while (sr.BaseStream.Position < end_content)
                             {
                                 int wz = (int)(end_content - sr.BaseStream.Position);
                                 wz = wz < buff.Length ? wz : buff.Length;
                                 sr.BaseStream.Read(buff, 0, wz);
                                 fs.Write(buff, 0, wz);
-                                fs.Flush();
+                                fs.Flush();                                
                             }
+                            break;
+                        default:
+                            /*
+                            Match mc = Regex.Match(encoding, @"^[xX]-(\S*)");
+                            if (mc.Success)
+                            {    
+                                // Encoder Here; 
+                            }
+                            */
                             break;
                     }
                 }
